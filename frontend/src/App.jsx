@@ -37,7 +37,10 @@ const initialLogForm = {
 
 function formatDateTime(value) {
   if (!value) return '—';
-  return new Date(value).toLocaleString('id-ID');
+  return new Date(value).toLocaleString('id-ID', {
+    day: '2-digit', month: 'short', year: 'numeric',
+    hour: '2-digit', minute: '2-digit',
+  });
 }
 
 const defaultLatitude = -6.2;
@@ -49,133 +52,65 @@ L.Icon.Default.mergeOptions({
   shadowUrl: markerShadow,
 });
 
-// ── primitives ────────────────────────────────────────────────────────────────
+// ── tokens ────────────────────────────────────────────────────────────────────
 
-const cn = (...classes) => classes.filter(Boolean).join(' ');
+const T = {
+  // Brand greens
+  green50:  '#f0f9f4',
+  green100: '#d1eedb',
+  green200: '#a3ddb8',
+  green500: '#2e9e5e',
+  green600: '#1f7a47',
+  green700: '#155c35',
+  green800: '#0d3f24',
+  green900: '#071f12',
 
-const styles = {
-  // layout
-  card: {
-    backgroundColor: '#ffffff',
-    border: '1px solid hsl(240 5.9% 90%)',
-    borderRadius: 12,
-    padding: '24px',
-    marginBottom: 16,
-  },
-  sectionHeader: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 20,
-    paddingBottom: 16,
-    borderBottom: '1px solid hsl(240 5.9% 90%)',
-  },
-  sectionTitleGroup: { display: 'flex', alignItems: 'center', gap: 10 },
-  sectionNum: {
-    width: 24, height: 24,
-    borderRadius: 6,
-    backgroundColor: 'hsl(240 10% 3.9%)',
-    color: '#fff',
-    fontSize: 12, fontWeight: 500,
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-    flexShrink: 0,
-  },
-  sectionTitle: { fontSize: 15, fontWeight: 600, color: 'hsl(240 10% 3.9%)' },
+  // Neutrals
+  white:   '#ffffff',
+  gray50:  '#f8f8f7',
+  gray100: '#f0efec',
+  gray200: '#e2e0da',
+  gray300: '#c8c5bc',
+  gray400: '#9e9b92',
+  gray500: '#6e6b62',
+  gray700: '#3a3832',
+  gray900: '#1a1916',
 
-  // form
-  formGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 16 },
-  fieldWrapper: { display: 'flex', flexDirection: 'column', gap: 6 },
-  label: { fontSize: 13, fontWeight: 500, color: 'hsl(240 3.8% 46.1%)' },
-  input: {
-    height: 36, padding: '0 12px', fontSize: 13,
-    color: 'hsl(240 10% 3.9%)',
-    backgroundColor: '#ffffff',
-    border: '1px solid hsl(240 5.9% 90%)',
-    borderRadius: 8,
-    outline: 'none', width: '100%', boxSizing: 'border-box',
-    fontFamily: 'inherit',
-    transition: 'border-color 0.15s, box-shadow 0.15s',
-  },
-  textarea: {
-    padding: '8px 12px', fontSize: 13,
-    color: 'hsl(240 10% 3.9%)',
-    backgroundColor: '#ffffff',
-    border: '1px solid hsl(240 5.9% 90%)',
-    borderRadius: 8,
-    outline: 'none', width: '100%', minHeight: 80,
-    resize: 'vertical', boxSizing: 'border-box',
-    fontFamily: 'inherit', lineHeight: 1.6,
-  },
-  select: {
-    height: 36, padding: '0 12px', fontSize: 13,
-    color: 'hsl(240 10% 3.9%)',
-    backgroundColor: '#ffffff',
-    border: '1px solid hsl(240 5.9% 90%)',
-    borderRadius: 8,
-    outline: 'none', width: '100%', boxSizing: 'border-box',
-    fontFamily: 'inherit', cursor: 'pointer',
-  },
-
-  // buttons
-  btnPrimary: {
-    height: 36, padding: '0 16px', fontSize: 13, fontWeight: 500,
-    backgroundColor: 'hsl(240 10% 3.9%)',
-    color: '#ffffff',
-    border: '1px solid hsl(240 10% 3.9%)',
-    borderRadius: 8, cursor: 'pointer', fontFamily: 'inherit',
-  },
-  btnSecondary: {
-    height: 36, padding: '0 14px', fontSize: 13, fontWeight: 500,
-    backgroundColor: '#ffffff',
-    color: 'hsl(240 10% 3.9%)',
-    border: '1px solid hsl(240 5.9% 90%)',
-    borderRadius: 8, cursor: 'pointer', fontFamily: 'inherit',
-  },
-
-  // inline sub-form box
-  inlineForm: {
-    backgroundColor: 'hsl(240 4.8% 95.9%)',
-    border: '1px solid hsl(240 5.9% 90%)',
-    borderRadius: 10,
-    padding: 16,
-    marginBottom: 14,
-  },
-  inlineFormLabel: {
-    fontSize: 12, fontWeight: 600,
-    color: 'hsl(240 3.8% 46.1%)',
-    textTransform: 'uppercase', letterSpacing: '0.05em',
-    marginBottom: 12,
-  },
-
-  // report / schedule item
-  listItem: {
-    backgroundColor: 'hsl(240 4.8% 95.9%)',
-    border: '1px solid hsl(240 5.9% 90%)',
-    borderRadius: 10,
-    padding: '14px 16px',
-  },
-
-  emptyText: {
-    fontSize: 13, color: 'hsl(240 3.8% 46.1%)',
-    textAlign: 'center', padding: '24px 0',
-  },
+  // Status
+  blue50:   '#eff6ff',
+  blue600:  '#1d4ed8',
+  blue800:  '#1e3a8a',
+  amber50:  '#fffbeb',
+  amber600: '#d97706',
+  amber800: '#92400e',
+  red50:    '#fef2f2',
+  red600:   '#dc2626',
+  red800:   '#991b1b',
+  teal50:   '#f0fdfa',
+  teal600:  '#0d9488',
+  teal800:  '#134e4a',
 };
 
-// ── small reusable components ─────────────────────────────────────────────────
+// ── small reusable ────────────────────────────────────────────────────────────
 
-function Badge({ children, variant = 'default' }) {
-  const variantStyles = {
-    default: { backgroundColor: 'hsl(240 4.8% 95.9%)', color: 'hsl(240 3.8% 46.1%)', border: '1px solid hsl(240 5.9% 90%)' },
-    blue:    { backgroundColor: '#eff6ff', color: '#1d4ed8', border: '1px solid #bfdbfe' },
-    green:   { backgroundColor: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0' },
-    amber:   { backgroundColor: '#fffbeb', color: '#b45309', border: '1px solid #fde68a' },
-    red:     { backgroundColor: '#fef2f2', color: '#b91c1c', border: '1px solid #fecaca' },
+function Badge({ children, color = 'gray' }) {
+  const map = {
+    gray:  { bg: T.gray100, color: T.gray700, border: T.gray200 },
+    blue:  { bg: T.blue50,  color: T.blue800, border: '#bfdbfe' },
+    green: { bg: T.green50, color: T.green700, border: T.green100 },
+    amber: { bg: T.amber50, color: T.amber800, border: '#fde68a' },
+    red:   { bg: T.red50,   color: T.red800,  border: '#fecaca' },
+    teal:  { bg: T.teal50,  color: T.teal800, border: '#99f6e4' },
   };
+  const s = map[color] || map.gray;
   return (
     <span style={{
-      fontSize: 11, fontWeight: 500,
-      padding: '2px 8px', borderRadius: 6,
-      ...variantStyles[variant],
+      display: 'inline-flex', alignItems: 'center',
+      fontSize: 11, fontWeight: 600, letterSpacing: '0.04em',
+      textTransform: 'uppercase',
+      padding: '3px 8px', borderRadius: 4,
+      backgroundColor: s.bg, color: s.color,
+      border: `1px solid ${s.border}`,
     }}>
       {children}
     </span>
@@ -184,54 +119,246 @@ function Badge({ children, variant = 'default' }) {
 
 function StatusBadge({ status }) {
   const map = {
-    baru:     { label: 'Baru',     variant: 'blue' },
-    diproses: { label: 'Diproses', variant: 'amber' },
-    selesai:  { label: 'Selesai',  variant: 'green' },
+    baru:     { label: 'Baru',     color: 'blue' },
+    diproses: { label: 'Diproses', color: 'amber' },
+    selesai:  { label: 'Selesai',  color: 'green' },
   };
-  const cfg = map[status] || { label: status, variant: 'default' };
-  return <Badge variant={cfg.variant}>{cfg.label}</Badge>;
+  const cfg = map[status] || { label: status, color: 'gray' };
+  return <Badge color={cfg.color}>{cfg.label}</Badge>;
 }
 
-function StatCard({ label, value, color }) {
+function StatCard({ label, value, accent }) {
   return (
     <div style={{
-      backgroundColor: '#ffffff',
-      border: '1px solid hsl(240 5.9% 90%)',
-      borderRadius: 12, padding: '14px 16px',
+      backgroundColor: T.white,
+      border: `1px solid ${T.gray200}`,
+      borderRadius: 10,
+      padding: '16px 18px',
+      borderTop: `3px solid ${accent || T.gray300}`,
     }}>
-      <p style={{ fontSize: 11, color: 'hsl(240 3.8% 46.1%)', margin: '0 0 8px', letterSpacing: '0.04em', textTransform: 'uppercase' }}>{label}</p>
-      <p style={{ fontSize: 28, fontWeight: 600, margin: 0, lineHeight: 1, color: color || 'hsl(240 10% 3.9%)' }}>{value}</p>
+      <p style={{
+        margin: '0 0 10px', fontSize: 11, fontWeight: 600,
+        letterSpacing: '0.06em', textTransform: 'uppercase',
+        color: T.gray500,
+      }}>{label}</p>
+      <p style={{ margin: 0, fontSize: 30, fontWeight: 700, lineHeight: 1, color: T.gray900, fontVariantNumeric: 'tabular-nums' }}>{value}</p>
     </div>
   );
 }
 
-function Card({ children, style }) {
-  return <div style={{ ...styles.card, ...style }}>{children}</div>;
-}
+// inputs
+const inp = {
+  base: {
+    height: 38, padding: '0 12px', fontSize: 13,
+    color: T.gray900, backgroundColor: T.white,
+    border: `1px solid ${T.gray200}`,
+    borderRadius: 7, outline: 'none',
+    width: '100%', boxSizing: 'border-box',
+    fontFamily: 'inherit',
+    transition: 'border-color 0.15s',
+  },
+  textarea: {
+    padding: '9px 12px', fontSize: 13,
+    color: T.gray900, backgroundColor: T.white,
+    border: `1px solid ${T.gray200}`,
+    borderRadius: 7, outline: 'none',
+    width: '100%', minHeight: 84,
+    resize: 'vertical', boxSizing: 'border-box',
+    fontFamily: 'inherit', lineHeight: 1.65,
+  },
+};
 
-function SectionHeader({ number, title, badgeLabel, badgeVariant }) {
+function Input({ style, ...props }) {
+  const [focused, setFocused] = useState(false);
   return (
-    <div style={styles.sectionHeader}>
-      <div style={styles.sectionTitleGroup}>
-        <div style={styles.sectionNum}>{number}</div>
-        <h2 style={{ ...styles.sectionTitle, margin: 0 }}>{title}</h2>
-      </div>
-      <Badge variant={badgeVariant}>{badgeLabel}</Badge>
-    </div>
+    <input
+      {...props}
+      style={{
+        ...inp.base,
+        ...(focused ? { borderColor: T.green500, boxShadow: `0 0 0 3px ${T.green50}` } : {}),
+        ...style,
+      }}
+      onFocus={() => setFocused(true)}
+      onBlur={() => setFocused(false)}
+    />
   );
 }
 
-function Field({ label, children }) {
+function Textarea({ style, ...props }) {
+  const [focused, setFocused] = useState(false);
   return (
-    <div style={styles.fieldWrapper}>
-      <label style={styles.label}>{label}</label>
+    <textarea
+      {...props}
+      style={{
+        ...inp.textarea,
+        ...(focused ? { borderColor: T.green500, boxShadow: `0 0 0 3px ${T.green50}` } : {}),
+        ...style,
+      }}
+      onFocus={() => setFocused(true)}
+      onBlur={() => setFocused(false)}
+    />
+  );
+}
+
+function Select({ style, ...props }) {
+  const [focused, setFocused] = useState(false);
+  return (
+    <select
+      {...props}
+      style={{
+        ...inp.base,
+        cursor: 'pointer', appearance: 'none',
+        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236e6b62' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")`,
+        backgroundRepeat: 'no-repeat',
+        backgroundPosition: 'right 12px center',
+        paddingRight: 32,
+        ...(focused ? { borderColor: T.green500, boxShadow: `0 0 0 3px ${T.green50}` } : {}),
+        ...style,
+      }}
+      onFocus={() => setFocused(true)}
+      onBlur={() => setFocused(false)}
+    />
+  );
+}
+
+function Field({ label, children, full }) {
+  return (
+    <div style={{
+      display: 'flex', flexDirection: 'column', gap: 5,
+      gridColumn: full ? '1 / -1' : undefined,
+    }}>
+      <label style={{ fontSize: 12, fontWeight: 600, color: T.gray500, letterSpacing: '0.02em' }}>{label}</label>
       {children}
     </div>
   );
 }
 
-function Separator({ style }) {
-  return <div style={{ height: 1, backgroundColor: 'hsl(240 5.9% 90%)', margin: '20px 0', ...style }} />;
+function BtnPrimary({ children, style, ...props }) {
+  const [hover, setHover] = useState(false);
+  return (
+    <button
+      {...props}
+      style={{
+        height: 38, padding: '0 18px', fontSize: 13, fontWeight: 600,
+        backgroundColor: hover ? T.green700 : T.green600,
+        color: T.white, border: 'none',
+        borderRadius: 7, cursor: 'pointer', fontFamily: 'inherit',
+        transition: 'background-color 0.15s',
+        letterSpacing: '0.01em',
+        ...style,
+      }}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+    >
+      {children}
+    </button>
+  );
+}
+
+function BtnSecondary({ children, style, ...props }) {
+  const [hover, setHover] = useState(false);
+  return (
+    <button
+      {...props}
+      style={{
+        height: 38, padding: '0 14px', fontSize: 13, fontWeight: 500,
+        backgroundColor: hover ? T.gray100 : T.white,
+        color: T.gray700,
+        border: `1px solid ${T.gray200}`,
+        borderRadius: 7, cursor: 'pointer', fontFamily: 'inherit',
+        transition: 'background-color 0.15s',
+        ...style,
+      }}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+    >
+      {children}
+    </button>
+  );
+}
+
+function Divider({ style }) {
+  return <div style={{ height: 1, backgroundColor: T.gray100, margin: '20px 0', ...style }} />;
+}
+
+// ── card ──────────────────────────────────────────────────────────────────────
+
+function Card({ children, style }) {
+  return (
+    <div style={{
+      backgroundColor: T.white,
+      border: `1px solid ${T.gray200}`,
+      borderRadius: 12,
+      marginBottom: 16,
+      overflow: 'hidden',
+      ...style,
+    }}>
+      {children}
+    </div>
+  );
+}
+
+function CardHeader({ icon, title, badge, badgeColor }) {
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      padding: '18px 24px',
+      borderBottom: `1px solid ${T.gray100}`,
+      backgroundColor: T.gray50,
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <span style={{
+          width: 32, height: 32, borderRadius: 8,
+          backgroundColor: T.green600,
+          color: T.white,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 14, fontWeight: 700, flexShrink: 0,
+        }}>{icon}</span>
+        <h2 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: T.gray900 }}>{title}</h2>
+      </div>
+      <Badge color={badgeColor}>{badge}</Badge>
+    </div>
+  );
+}
+
+function CardBody({ children, style }) {
+  return <div style={{ padding: '20px 24px', ...style }}>{children}</div>;
+}
+
+// ── sub-form box ──────────────────────────────────────────────────────────────
+
+function SubForm({ title, children }) {
+  return (
+    <div style={{
+      backgroundColor: T.gray50,
+      border: `1px solid ${T.gray200}`,
+      borderRadius: 9,
+      padding: '16px 18px',
+      marginBottom: 16,
+    }}>
+      <p style={{
+        margin: '0 0 14px', fontSize: 11, fontWeight: 700,
+        color: T.green600, letterSpacing: '0.07em', textTransform: 'uppercase',
+      }}>{title}</p>
+      {children}
+    </div>
+  );
+}
+
+// ── list item ─────────────────────────────────────────────────────────────────
+
+function ListItem({ children, style }) {
+  return (
+    <div style={{
+      backgroundColor: T.white,
+      border: `1px solid ${T.gray200}`,
+      borderRadius: 9,
+      padding: '14px 16px',
+      ...style,
+    }}>
+      {children}
+    </div>
+  );
 }
 
 // ── map ───────────────────────────────────────────────────────────────────────
@@ -277,10 +404,53 @@ function LocationPickerMap({ latitude, longitude, onPick }) {
   return (
     <div
       ref={mapContainerRef}
-      style={{ width: '100%', height: 280, borderRadius: 8, overflow: 'hidden', border: '1px solid hsl(240 5.9% 90%)' }}
+      style={{
+        width: '100%', height: 280,
+        borderRadius: 8, overflow: 'hidden',
+        border: `1px solid ${T.gray200}`,
+      }}
     />
   );
 }
+
+// ── alert ─────────────────────────────────────────────────────────────────────
+
+function Alert({ message, type }) {
+  if (!message) return null;
+  const map = {
+    success: { bg: T.green50, border: T.green100, color: T.green700, icon: '✓' },
+    error:   { bg: T.red50,   border: '#fecaca',  color: T.red800,  icon: '✕' },
+    info:    { bg: T.blue50,  border: '#bfdbfe',  color: T.blue800, icon: 'i' },
+  };
+  const s = map[type] || map.info;
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center', gap: 10,
+      margin: '0 0 16px', padding: '11px 14px',
+      borderRadius: 8, fontSize: 13, fontWeight: 500,
+      backgroundColor: s.bg,
+      border: `1px solid ${s.border}`,
+      color: s.color,
+    }}>
+      <span style={{
+        width: 20, height: 20, borderRadius: 4,
+        backgroundColor: s.color, color: T.white,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        fontSize: 11, fontWeight: 700, flexShrink: 0,
+      }}>{s.icon}</span>
+      {message}
+    </div>
+  );
+}
+
+// ── formGrid helper ───────────────────────────────────────────────────────────
+
+const formGrid = {
+  display: 'grid',
+  gridTemplateColumns: '1fr 1fr',
+  gap: 14,
+  marginBottom: 16,
+};
 
 // ── main app ──────────────────────────────────────────────────────────────────
 
@@ -410,370 +580,431 @@ export default function App() {
     } catch (error) { showMessage(error.message, 'error'); }
   }
 
-  const alertVariants = {
-    success: { bg: '#f0fdf4', border: '1px solid #bbf7d0', color: '#15803d' },
-    error:   { bg: '#fef2f2', border: '1px solid #fecaca', color: '#b91c1c' },
-    info:    { bg: '#eff6ff', border: '1px solid #bfdbfe', color: '#1d4ed8' },
-  };
-
   return (
     <div style={{
-      maxWidth: 900, margin: '0 auto', padding: '0 20px 60px',
-      fontFamily: "'Inter', 'Helvetica Neue', sans-serif",
-      backgroundColor: 'hsl(240 4.8% 95.9%)',
+      maxWidth: 920, margin: '0 auto',
+      padding: '0 20px 72px',
+      fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif",
+      backgroundColor: T.gray50,
       minHeight: '100vh',
     }}>
 
-      {/* Navbar */}
+      {/* ── Navbar ── */}
       <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         padding: '20px 0 18px',
-        borderBottom: '1px solid hsl(240 5.9% 90%)',
+        borderBottom: `2px solid ${T.green600}`,
         marginBottom: 24,
       }}>
-        <div>
-          <p style={{ margin: 0, fontSize: 15, fontWeight: 600, color: 'hsl(240 10% 3.9%)' }}>GO GO TRASH GO</p>
-          <p style={{ margin: '2px 0 0', fontSize: 11, color: 'hsl(240 3.8% 46.1%)', letterSpacing: '0.03em' }}>
-            Sistem Manajemen Persampahan
-          </p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{
+            width: 38, height: 38, borderRadius: 9,
+            backgroundColor: T.green600,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 18,
+          }}>🗑️</div>
+          <div>
+            <p style={{ margin: 0, fontSize: 16, fontWeight: 800, color: T.gray900, letterSpacing: '-0.02em' }}>
+              GO GO TRASH GO
+            </p>
+            <p style={{ margin: '1px 0 0', fontSize: 11, color: T.gray500, fontWeight: 500, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+              Sistem Manajemen Persampahan
+            </p>
+          </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <button onClick={loadAllData} style={styles.btnSecondary}>
-            {loading ? '...' : 'Muat ulang'}
-          </button>
-          <select
+          <BtnSecondary onClick={loadAllData} style={{ minWidth: 110, fontSize: 12 }}>
+            {loading ? '⟳ Memuat...' : '⟳ Muat ulang'}
+          </BtnSecondary>
+          <Select
             value={role}
             onChange={(e) => setRole(e.target.value)}
-            style={{ ...styles.select, width: 'auto', paddingRight: 28 }}
+            style={{ width: 'auto', minWidth: 140, paddingRight: 32 }}
           >
-            <option value="masyarakat">Masyarakat</option>
-            <option value="admin">Admin</option>
-          </select>
+            <option value="masyarakat">👤 Masyarakat</option>
+            <option value="admin">🔧 Admin</option>
+          </Select>
         </div>
       </div>
 
-      {/* Alert */}
-      {message && (
-        <div style={{
-          margin: '0 0 16px',
-          padding: '10px 14px',
-          borderRadius: 8,
-          fontSize: 13, fontWeight: 500,
-          ...alertVariants[messageType],
-        }}>
-          {message}
-        </div>
-      )}
+      {/* ── Alert ── */}
+      <Alert message={message} type={messageType} />
 
-      {/* Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 10, marginBottom: 20 }}>
-        <StatCard label="Total laporan"   value={dashboardStats.totalLaporan}   />
-        <StatCard label="Laporan baru"    value={dashboardStats.laporanBaru}    color="#1d4ed8" />
-        <StatCard label="Selesai"         value={dashboardStats.laporanSelesai} color="#15803d" />
-        <StatCard label="Jadwal hari ini" value={dashboardStats.jadwalHariIni}  color="#b45309" />
-        <StatCard label="Petugas aktif"   value={dashboardStats.petugasAktif}   color="#b91c1c" />
+      {/* ── Stats ── */}
+      <div style={{
+        display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)',
+        gap: 10, marginBottom: 20,
+      }}>
+        <StatCard label="Total laporan"   value={dashboardStats.totalLaporan}   accent={T.gray300} />
+        <StatCard label="Laporan baru"    value={dashboardStats.laporanBaru}    accent={T.blue600} />
+        <StatCard label="Selesai"         value={dashboardStats.laporanSelesai} accent={T.green500} />
+        <StatCard label="Jadwal hari ini" value={dashboardStats.jadwalHariIni}  accent={T.amber600} />
+        <StatCard label="Petugas aktif"   value={dashboardStats.petugasAktif}   accent={T.teal600} />
       </div>
 
-      {/* ── Section 1: Pelaporan ── */}
+      {/* ═══════════════════════════════════════════════════
+          Section 1: Pelaporan
+      ═══════════════════════════════════════════════════ */}
       <Card>
-        <SectionHeader number="1" title="Pelaporan sampah liar" badgeLabel="Publik" badgeVariant="blue" />
-
-        <form onSubmit={handleCreateReport}>
-          <div style={styles.formGrid}>
-            <Field label="Nama pelapor">
-              <input
-                style={styles.input} value={reportForm.reporter_name} required
-                onChange={(e) => setReportForm({ ...reportForm, reporter_name: e.target.value })}
-              />
-            </Field>
-            <Field label="Alamat / keterangan lokasi">
-              <input
-                style={styles.input} value={reportForm.address}
-                onChange={(e) => setReportForm({ ...reportForm, address: e.target.value })}
-              />
-            </Field>
-            <Field label="Latitude">
-              <input
-                type="number" step="0.0000001" style={styles.input}
-                value={reportForm.latitude} required
-                onChange={(e) => setReportForm({ ...reportForm, latitude: e.target.value })}
-              />
-            </Field>
-            <Field label="Longitude">
-              <input
-                type="number" step="0.0000001" style={styles.input}
-                value={reportForm.longitude} required
-                onChange={(e) => setReportForm({ ...reportForm, longitude: e.target.value })}
-              />
-            </Field>
-          </div>
-
-          <Field label="Pilih lokasi di peta">
-            <div style={{ marginTop: 6 }}>
-              <LocationPickerMap
-                latitude={reportForm.latitude}
-                longitude={reportForm.longitude}
-                onPick={handlePickFromMap}
-              />
-            </div>
-            <button type="button" onClick={handleUseCurrentLocation} style={{ ...styles.btnSecondary, marginTop: 8, fontSize: 12 }}>
-              Gunakan lokasi saya
-            </button>
-          </Field>
-
-          <div style={{ marginTop: 14 }}>
-            <Field label="Deskripsi laporan">
-              <textarea
-                style={styles.textarea} value={reportForm.description} required
-                onChange={(e) => setReportForm({ ...reportForm, description: e.target.value })}
-              />
-            </Field>
-          </div>
-
-          <div style={{ marginTop: 14 }}>
-            <Field label={<>Upload gambar <span style={{ color: 'hsl(240 3.8% 46.1%)', fontWeight: 400 }}>(opsional)</span></>}>
-              <div style={{
-                marginTop: 4,
-                border: '1px dashed hsl(240 5.9% 85%)',
-                borderRadius: 8, padding: '12px 14px',
-                backgroundColor: 'hsl(240 4.8% 95.9%)',
-              }}>
-                <input
-                  type="file" accept="image/*"
-                  style={{ fontSize: 12, color: 'hsl(240 3.8% 46.1%)' }}
-                  onChange={(e) => setReportPhoto(e.target.files?.[0] || null)}
+        <CardHeader icon="1" title="Pelaporan sampah liar" badge="Publik" badgeColor="blue" />
+        <CardBody>
+          <form onSubmit={handleCreateReport}>
+            <div style={formGrid}>
+              <Field label="Nama pelapor">
+                <Input
+                  value={reportForm.reporter_name} required
+                  placeholder="Nama lengkap"
+                  onChange={(e) => setReportForm({ ...reportForm, reporter_name: e.target.value })}
                 />
-                {reportPhoto && (
-                  <p style={{ margin: '6px 0 0', fontSize: 12, color: '#15803d', fontWeight: 500 }}>
-                    ✓ {reportPhoto.name}
-                  </p>
-                )}
+              </Field>
+              <Field label="Alamat / keterangan lokasi">
+                <Input
+                  value={reportForm.address}
+                  placeholder="Nama jalan, kelurahan, dst."
+                  onChange={(e) => setReportForm({ ...reportForm, address: e.target.value })}
+                />
+              </Field>
+              <Field label="Latitude">
+                <Input
+                  type="number" step="0.0000001"
+                  value={reportForm.latitude} required
+                  placeholder="-6.2000000"
+                  onChange={(e) => setReportForm({ ...reportForm, latitude: e.target.value })}
+                />
+              </Field>
+              <Field label="Longitude">
+                <Input
+                  type="number" step="0.0000001"
+                  value={reportForm.longitude} required
+                  placeholder="106.8166666"
+                  onChange={(e) => setReportForm({ ...reportForm, longitude: e.target.value })}
+                />
+              </Field>
+            </div>
+
+            <Field label="Pilih lokasi di peta">
+              <div style={{ marginTop: 6 }}>
+                <LocationPickerMap
+                  latitude={reportForm.latitude}
+                  longitude={reportForm.longitude}
+                  onPick={handlePickFromMap}
+                />
               </div>
+              <BtnSecondary type="button" onClick={handleUseCurrentLocation} style={{ marginTop: 8, fontSize: 12 }}>
+                📍 Gunakan lokasi saya
+              </BtnSecondary>
             </Field>
-          </div>
 
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
-            <button type="submit" style={styles.btnPrimary}>Kirim laporan</button>
-          </div>
-        </form>
+            <div style={{ marginTop: 14 }}>
+              <Field label="Deskripsi laporan">
+                <Textarea
+                  value={reportForm.description} required
+                  placeholder="Jelaskan kondisi sampah liar yang ditemukan..."
+                  onChange={(e) => setReportForm({ ...reportForm, description: e.target.value })}
+                />
+              </Field>
+            </div>
 
-        {/* Report list */}
-        {reports.length > 0 && (
-          <>
-            <Separator />
-            <p style={{ ...styles.label, marginBottom: 12 }}>Daftar laporan ({reports.length})</p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {reports.map((report) => (
-                <div key={report.id} style={styles.listItem}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                    <p style={{ margin: 0, fontWeight: 600, fontSize: 14, color: 'hsl(240 10% 3.9%)' }}>{report.reporter_name}</p>
-                    <StatusBadge status={report.status} />
-                  </div>
-                  <p style={{ margin: '0 0 8px', fontSize: 13, color: 'hsl(240 3.8% 46.1%)', lineHeight: 1.6 }}>{report.description}</p>
-                  {report.photo_url && (
-                    <img
-                      src={resolveAssetUrl(report.photo_url)} alt="Foto laporan"
-                      style={{ width: '100%', maxHeight: 180, objectFit: 'cover', borderRadius: 8, marginBottom: 8, border: '1px solid hsl(240 5.9% 90%)' }}
-                    />
-                  )}
-                  <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-                    <span style={{ fontSize: 12, color: 'hsl(240 3.8% 60%)' }}>
-                      📍 {report.latitude}, {report.longitude}{report.address ? ` · ${report.address}` : ''}
-                    </span>
-                    <span style={{ fontSize: 12, color: 'hsl(240 3.8% 60%)' }}>
-                      🕐 {formatDateTime(report.created_at)}
-                    </span>
-                  </div>
-                  {isAdmin && (
-                    <div style={{ marginTop: 10 }}>
-                      <select
-                        value={report.status}
-                        onChange={(e) => handleUpdateReportStatus(report.id, e.target.value)}
-                        style={{ ...styles.select, width: 180, fontSize: 12 }}
-                      >
-                        <option value="baru">Baru</option>
-                        <option value="diproses">Diproses</option>
-                        <option value="selesai">Selesai</option>
-                      </select>
-                    </div>
+            <div style={{ marginTop: 14 }}>
+              <Field label="Upload gambar (opsional)">
+                <div style={{
+                  marginTop: 4,
+                  border: `1.5px dashed ${T.gray300}`,
+                  borderRadius: 8, padding: '14px 16px',
+                  backgroundColor: T.gray50,
+                  transition: 'border-color 0.15s',
+                }}>
+                  <input
+                    type="file" accept="image/*"
+                    style={{ fontSize: 12, color: T.gray500 }}
+                    onChange={(e) => setReportPhoto(e.target.files?.[0] || null)}
+                  />
+                  {reportPhoto && (
+                    <p style={{ margin: '8px 0 0', fontSize: 12, color: T.green600, fontWeight: 600 }}>
+                      ✓ {reportPhoto.name}
+                    </p>
                   )}
                 </div>
-              ))}
+              </Field>
             </div>
-          </>
-        )}
-        {!reports.length && !loading && (
-          <p style={styles.emptyText}>Belum ada laporan masuk.</p>
-        )}
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 18 }}>
+              <BtnPrimary type="submit">Kirim laporan →</BtnPrimary>
+            </div>
+          </form>
+
+          {/* Report list */}
+          {reports.length > 0 && (
+            <>
+              <Divider />
+              <div style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                marginBottom: 14,
+              }}>
+                <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: T.gray700 }}>
+                  Daftar laporan masuk
+                </p>
+                <Badge color="gray">{reports.length} laporan</Badge>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {reports.map((report) => (
+                  <ListItem key={report.id}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+                      <div>
+                        <p style={{ margin: 0, fontWeight: 700, fontSize: 14, color: T.gray900 }}>{report.reporter_name}</p>
+                        {report.address && (
+                          <p style={{ margin: '2px 0 0', fontSize: 12, color: T.gray500 }}>{report.address}</p>
+                        )}
+                      </div>
+                      <StatusBadge status={report.status} />
+                    </div>
+                    <p style={{ margin: '0 0 10px', fontSize: 13, color: T.gray600 || T.gray500, lineHeight: 1.65 }}>
+                      {report.description}
+                    </p>
+                    {report.photo_url && (
+                      <img
+                        src={resolveAssetUrl(report.photo_url)} alt="Foto laporan"
+                        style={{
+                          width: '100%', maxHeight: 180,
+                          objectFit: 'cover', borderRadius: 7,
+                          marginBottom: 10,
+                          border: `1px solid ${T.gray200}`,
+                        }}
+                      />
+                    )}
+                    <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center' }}>
+                      <span style={{ fontSize: 12, color: T.gray400 }}>
+                        📍 {report.latitude}, {report.longitude}
+                      </span>
+                      <span style={{ fontSize: 12, color: T.gray400 }}>
+                        🕐 {formatDateTime(report.created_at)}
+                      </span>
+                    </div>
+                    {isAdmin && (
+                      <div style={{ marginTop: 12, paddingTop: 12, borderTop: `1px solid ${T.gray100}` }}>
+                        <Select
+                          value={report.status}
+                          onChange={(e) => handleUpdateReportStatus(report.id, e.target.value)}
+                          style={{ width: 200, fontSize: 12 }}
+                        >
+                          <option value="baru">Baru</option>
+                          <option value="diproses">Diproses</option>
+                          <option value="selesai">Selesai</option>
+                        </Select>
+                      </div>
+                    )}
+                  </ListItem>
+                ))}
+              </div>
+            </>
+          )}
+          {!reports.length && !loading && (
+            <p style={{ fontSize: 13, color: T.gray400, textAlign: 'center', padding: '28px 0 8px' }}>
+              Belum ada laporan masuk.
+            </p>
+          )}
+        </CardBody>
       </Card>
 
-      {/* ── Section 2: Jadwal ── */}
+      {/* ═══════════════════════════════════════════════════
+          Section 2: Jadwal
+      ═══════════════════════════════════════════════════ */}
       <Card>
-        <SectionHeader number="2" title="Jadwal pengangkutan sampah" badgeLabel="Publik & Admin" badgeVariant="green" />
-
-        {isAdmin && (
-          <div style={styles.inlineForm}>
-            <p style={styles.inlineFormLabel}>Tambah jadwal baru</p>
-            <form onSubmit={handleCreateSchedule}>
-              <div style={styles.formGrid}>
-                <Field label="Area">
-                  <input style={styles.input} value={scheduleForm.area} required
-                    onChange={(e) => setScheduleForm({ ...scheduleForm, area: e.target.value })} />
-                </Field>
-                <Field label="Tanggal angkut">
-                  <input type="date" style={styles.input} value={scheduleForm.pickup_date} required
-                    onChange={(e) => setScheduleForm({ ...scheduleForm, pickup_date: e.target.value })} />
-                </Field>
-                <Field label="Jam mulai">
-                  <input type="time" style={styles.input} value={scheduleForm.start_time} required
-                    onChange={(e) => setScheduleForm({ ...scheduleForm, start_time: e.target.value })} />
-                </Field>
-                <Field label="Jam selesai">
-                  <input type="time" style={styles.input} value={scheduleForm.end_time} required
-                    onChange={(e) => setScheduleForm({ ...scheduleForm, end_time: e.target.value })} />
-                </Field>
-                <div style={{ gridColumn: '1 / -1' }}>
-                  <Field label="Catatan">
-                    <textarea style={styles.textarea} value={scheduleForm.notes}
+        <CardHeader icon="2" title="Jadwal pengangkutan sampah" badge="Publik & Admin" badgeColor="green" />
+        <CardBody>
+          {isAdmin && (
+            <SubForm title="Tambah jadwal baru">
+              <form onSubmit={handleCreateSchedule}>
+                <div style={formGrid}>
+                  <Field label="Area">
+                    <Input value={scheduleForm.area} required placeholder="Nama area / kelurahan"
+                      onChange={(e) => setScheduleForm({ ...scheduleForm, area: e.target.value })} />
+                  </Field>
+                  <Field label="Tanggal angkut">
+                    <Input type="date" value={scheduleForm.pickup_date} required
+                      onChange={(e) => setScheduleForm({ ...scheduleForm, pickup_date: e.target.value })} />
+                  </Field>
+                  <Field label="Jam mulai">
+                    <Input type="time" value={scheduleForm.start_time} required
+                      onChange={(e) => setScheduleForm({ ...scheduleForm, start_time: e.target.value })} />
+                  </Field>
+                  <Field label="Jam selesai">
+                    <Input type="time" value={scheduleForm.end_time} required
+                      onChange={(e) => setScheduleForm({ ...scheduleForm, end_time: e.target.value })} />
+                  </Field>
+                  <Field label="Catatan" full>
+                    <Textarea value={scheduleForm.notes} placeholder="Catatan tambahan (opsional)"
                       onChange={(e) => setScheduleForm({ ...scheduleForm, notes: e.target.value })} />
                   </Field>
                 </div>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <button type="submit" style={styles.btnPrimary}>Tambah jadwal</button>
-              </div>
-            </form>
-          </div>
-        )}
-
-        {schedules.length > 0 ? (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-            {schedules.map((schedule) => (
-              <div key={schedule.id} style={styles.listItem}>
-                <p style={{ margin: '0 0 4px', fontWeight: 600, fontSize: 14, color: 'hsl(240 10% 3.9%)' }}>{schedule.area}</p>
-                <p style={{ margin: '0 0 2px', fontSize: 13, color: 'hsl(240 3.8% 46.1%)' }}>{schedule.pickup_date?.slice(0, 10)}</p>
-                <p style={{ margin: 0, fontSize: 12, color: 'hsl(240 3.8% 60%)' }}>
-                  {schedule.start_time?.slice(0, 5)} – {schedule.end_time?.slice(0, 5)}
-                </p>
-                {schedule.notes && (
-                  <p style={{ margin: '8px 0 0', fontSize: 12, color: 'hsl(240 3.8% 50%)' }}>{schedule.notes}</p>
-                )}
-              </div>
-            ))}
-          </div>
-        ) : !loading && (
-          <p style={styles.emptyText}>Belum ada jadwal pengangkutan.</p>
-        )}
-      </Card>
-
-      {/* ── Section 3: Monitoring ── */}
-      <Card>
-        <SectionHeader number="3" title="Monitoring petugas kebersihan" badgeLabel="Admin" badgeVariant="amber" />
-
-        {isAdmin && (
-          <>
-            {/* Add officer */}
-            <div style={styles.inlineForm}>
-              <p style={styles.inlineFormLabel}>Tambah petugas baru</p>
-              <form onSubmit={handleCreateOfficer}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr auto', gap: 12, alignItems: 'end' }}>
-                  <Field label="Nama petugas">
-                    <input style={styles.input} value={officerForm.name} required
-                      onChange={(e) => setOfficerForm({ ...officerForm, name: e.target.value })} />
-                  </Field>
-                  <Field label="Telepon">
-                    <input style={styles.input} value={officerForm.phone}
-                      onChange={(e) => setOfficerForm({ ...officerForm, phone: e.target.value })} />
-                  </Field>
-                  <Field label="Zona kerja">
-                    <input style={styles.input} value={officerForm.zone} required
-                      onChange={(e) => setOfficerForm({ ...officerForm, zone: e.target.value })} />
-                  </Field>
-                  <button type="submit" style={{ ...styles.btnPrimary, whiteSpace: 'nowrap' }}>+ Tambah</button>
+                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                  <BtnPrimary type="submit">Tambah jadwal →</BtnPrimary>
                 </div>
               </form>
-            </div>
+            </SubForm>
+          )}
 
-            {/* Log form */}
-            <div style={styles.inlineForm}>
-              <p style={styles.inlineFormLabel}>Input log monitoring</p>
-              <form onSubmit={handleCreateLog}>
-                <div style={styles.formGrid}>
-                  <Field label="Pilih petugas">
-                    <select style={styles.select} value={logForm.officerId} required
-                      onChange={(e) => setLogForm({ ...logForm, officerId: e.target.value })}>
-                      <option value="">— Pilih petugas —</option>
-                      {officers.map((o) => (
-                        <option key={o.id} value={o.id}>{o.name} ({o.zone})</option>
-                      ))}
-                    </select>
-                  </Field>
-                  <Field label="Status tugas">
-                    <input style={styles.input} value={logForm.status} placeholder="contoh: sedang menyapu" required
-                      onChange={(e) => setLogForm({ ...logForm, status: e.target.value })} />
-                  </Field>
-                  <Field label="Latitude">
-                    <input type="number" step="0.0000001" style={styles.input} value={logForm.latitude} required
-                      onChange={(e) => setLogForm({ ...logForm, latitude: e.target.value })} />
-                  </Field>
-                  <Field label="Longitude">
-                    <input type="number" step="0.0000001" style={styles.input} value={logForm.longitude} required
-                      onChange={(e) => setLogForm({ ...logForm, longitude: e.target.value })} />
-                  </Field>
-                  <div style={{ gridColumn: '1 / -1' }}>
-                    <Field label="Catatan">
-                      <textarea style={styles.textarea} value={logForm.notes}
+          {schedules.length > 0 ? (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+              {schedules.map((schedule) => {
+                const isToday = schedule.pickup_date?.slice(0, 10) === todayDate;
+                return (
+                  <ListItem key={schedule.id} style={isToday ? { borderColor: T.green200, borderLeftWidth: 3, borderLeftColor: T.green500 } : {}}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
+                      <p style={{ margin: 0, fontWeight: 700, fontSize: 14, color: T.gray900 }}>{schedule.area}</p>
+                      {isToday && <Badge color="green">Hari ini</Badge>}
+                    </div>
+                    <p style={{ margin: '0 0 4px', fontSize: 13, color: T.gray500 }}>
+                      📅 {schedule.pickup_date?.slice(0, 10)}
+                    </p>
+                    <p style={{ margin: 0, fontSize: 12, color: T.gray500 }}>
+                      🕐 {schedule.start_time?.slice(0, 5)} – {schedule.end_time?.slice(0, 5)}
+                    </p>
+                    {schedule.notes && (
+                      <p style={{ margin: '10px 0 0', fontSize: 12, color: T.gray400, lineHeight: 1.6 }}>{schedule.notes}</p>
+                    )}
+                  </ListItem>
+                );
+              })}
+            </div>
+          ) : !loading && (
+            <p style={{ fontSize: 13, color: T.gray400, textAlign: 'center', padding: '28px 0 8px' }}>
+              Belum ada jadwal pengangkutan.
+            </p>
+          )}
+        </CardBody>
+      </Card>
+
+      {/* ═══════════════════════════════════════════════════
+          Section 3: Monitoring
+      ═══════════════════════════════════════════════════ */}
+      <Card>
+        <CardHeader icon="3" title="Monitoring petugas kebersihan" badge="Admin" badgeColor="amber" />
+        <CardBody>
+          {isAdmin && (
+            <>
+              {/* Add officer */}
+              <SubForm title="Tambah petugas baru">
+                <form onSubmit={handleCreateOfficer}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr auto', gap: 12, alignItems: 'end' }}>
+                    <Field label="Nama petugas">
+                      <Input value={officerForm.name} required placeholder="Nama lengkap"
+                        onChange={(e) => setOfficerForm({ ...officerForm, name: e.target.value })} />
+                    </Field>
+                    <Field label="Telepon">
+                      <Input value={officerForm.phone} placeholder="08xx-xxxx-xxxx"
+                        onChange={(e) => setOfficerForm({ ...officerForm, phone: e.target.value })} />
+                    </Field>
+                    <Field label="Zona kerja">
+                      <Input value={officerForm.zone} required placeholder="Zona A, B, dst."
+                        onChange={(e) => setOfficerForm({ ...officerForm, zone: e.target.value })} />
+                    </Field>
+                    <BtnPrimary type="submit" style={{ whiteSpace: 'nowrap' }}>+ Tambah</BtnPrimary>
+                  </div>
+                </form>
+              </SubForm>
+
+              {/* Log form */}
+              <SubForm title="Input log monitoring">
+                <form onSubmit={handleCreateLog}>
+                  <div style={formGrid}>
+                    <Field label="Pilih petugas">
+                      <Select value={logForm.officerId} required
+                        onChange={(e) => setLogForm({ ...logForm, officerId: e.target.value })}>
+                        <option value="">— Pilih petugas —</option>
+                        {officers.map((o) => (
+                          <option key={o.id} value={o.id}>{o.name} ({o.zone})</option>
+                        ))}
+                      </Select>
+                    </Field>
+                    <Field label="Status tugas">
+                      <Input value={logForm.status} placeholder="cth: sedang menyapu" required
+                        onChange={(e) => setLogForm({ ...logForm, status: e.target.value })} />
+                    </Field>
+                    <Field label="Latitude">
+                      <Input type="number" step="0.0000001" value={logForm.latitude} required placeholder="-6.2000000"
+                        onChange={(e) => setLogForm({ ...logForm, latitude: e.target.value })} />
+                    </Field>
+                    <Field label="Longitude">
+                      <Input type="number" step="0.0000001" value={logForm.longitude} required placeholder="106.8166666"
+                        onChange={(e) => setLogForm({ ...logForm, longitude: e.target.value })} />
+                    </Field>
+                    <Field label="Catatan" full>
+                      <Textarea value={logForm.notes} placeholder="Catatan kegiatan petugas..."
                         onChange={(e) => setLogForm({ ...logForm, notes: e.target.value })} />
                     </Field>
                   </div>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                  <button type="submit" style={styles.btnPrimary}>Simpan monitoring</button>
-                </div>
-              </form>
-            </div>
-          </>
-        )}
+                  <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                    <BtnPrimary type="submit">Simpan monitoring →</BtnPrimary>
+                  </div>
+                </form>
+              </SubForm>
+            </>
+          )}
 
-        {monitoring.length > 0 ? (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-            {monitoring.map((item) => (
-              <div key={item.id} style={styles.listItem}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-                  <div style={{
-                    width: 36, height: 36, borderRadius: '50%',
-                    backgroundColor: item.is_active ? '#f0fdf4' : 'hsl(240 4.8% 92%)',
-                    border: `1px solid ${item.is_active ? '#bbf7d0' : 'hsl(240 5.9% 85%)'}`,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 13, fontWeight: 500,
-                    color: item.is_active ? '#15803d' : 'hsl(240 3.8% 46.1%)',
-                    flexShrink: 0,
-                  }}>
-                    {item.name?.charAt(0).toUpperCase()}
-                  </div>
-                  <div>
-                    <p style={{ margin: 0, fontWeight: 600, fontSize: 14, color: 'hsl(240 10% 3.9%)' }}>{item.name}</p>
-                    <p style={{ margin: 0, fontSize: 12, color: 'hsl(240 3.8% 46.1%)' }}>Zona: {item.zone}</p>
-                  </div>
-                </div>
-                <div style={{ borderTop: '1px solid hsl(240 5.9% 90%)', paddingTop: 10, display: 'flex', flexDirection: 'column', gap: 3 }}>
-                  <p style={{ margin: 0, fontSize: 13, color: 'hsl(240 10% 3.9%)' }}>
-                    Status: <strong style={{ fontWeight: 500 }}>{item.latest_status || '—'}</strong>
-                  </p>
-                  <p style={{ margin: 0, fontSize: 12, color: 'hsl(240 3.8% 46.1%)' }}>
-                    {item.phone || '—'} · {item.latitude ?? '—'}, {item.longitude ?? '—'}
-                  </p>
-                  <p style={{ margin: 0, fontSize: 11, color: 'hsl(240 3.8% 60%)' }}>
-                    Update: {formatDateTime(item.last_update)}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : !loading && (
-          <p style={styles.emptyText}>Belum ada data monitoring.</p>
-        )}
+          {monitoring.length > 0 ? (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+              {monitoring.map((item) => {
+                const initials = item.name?.charAt(0).toUpperCase() || '?';
+                const active = Boolean(item.is_active);
+                return (
+                  <ListItem key={item.id}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+                      <div style={{
+                        width: 40, height: 40, borderRadius: '50%', flexShrink: 0,
+                        backgroundColor: active ? T.green50 : T.gray100,
+                        border: `2px solid ${active ? T.green200 : T.gray200}`,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: 14, fontWeight: 700,
+                        color: active ? T.green700 : T.gray500,
+                      }}>
+                        {initials}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <p style={{ margin: 0, fontWeight: 700, fontSize: 14, color: T.gray900 }}>{item.name}</p>
+                        <p style={{ margin: '1px 0 0', fontSize: 12, color: T.gray500 }}>Zona: {item.zone}</p>
+                      </div>
+                      <Badge color={active ? 'green' : 'gray'}>{active ? 'Aktif' : 'Nonaktif'}</Badge>
+                    </div>
+                    <div style={{
+                      borderTop: `1px solid ${T.gray100}`,
+                      paddingTop: 10,
+                      display: 'flex', flexDirection: 'column', gap: 4,
+                    }}>
+                      <p style={{ margin: 0, fontSize: 13, color: T.gray700 }}>
+                        <span style={{ color: T.gray400, fontWeight: 500 }}>Status: </span>
+                        {item.latest_status || '—'}
+                      </p>
+                      <p style={{ margin: 0, fontSize: 12, color: T.gray400 }}>
+                        📞 {item.phone || '—'} &nbsp;·&nbsp; 📍 {item.latitude ?? '—'}, {item.longitude ?? '—'}
+                      </p>
+                      <p style={{ margin: 0, fontSize: 11, color: T.gray400 }}>
+                        Diperbarui: {formatDateTime(item.last_update)}
+                      </p>
+                    </div>
+                  </ListItem>
+                );
+              })}
+            </div>
+          ) : !loading && (
+            <p style={{ fontSize: 13, color: T.gray400, textAlign: 'center', padding: '28px 0 8px' }}>
+              Belum ada data monitoring.
+            </p>
+          )}
+        </CardBody>
       </Card>
+
+      {/* Footer */}
+      <div style={{
+        textAlign: 'center', padding: '24px 0 0',
+        borderTop: `1px solid ${T.gray200}`,
+        marginTop: 8,
+      }}>
+        <p style={{ margin: 0, fontSize: 11, color: T.gray400, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+          Go Go Trash Go — Sistem Manajemen Persampahan
+        </p>
+      </div>
+
     </div>
   );
 }
