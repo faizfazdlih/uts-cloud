@@ -1,25 +1,12 @@
 const express = require('express');
-const fs = require('fs');
-const path = require('path');
 const multer = require('multer');
 const pool = require('../db');
+const { saveReportPhoto } = require('../services/fileStorage');
 
 const router = express.Router();
-const uploadDir = path.join(__dirname, '../../uploads');
-
-fs.mkdirSync(uploadDir, { recursive: true });
-
-const storage = multer.diskStorage({
-  destination: (_, __, cb) => cb(null, uploadDir),
-  filename: (_, file, cb) => {
-    const extension = path.extname(file.originalname || '').toLowerCase();
-    const safeExtension = extension || '.jpg';
-    cb(null, `${Date.now()}-${Math.round(Math.random() * 1e9)}${safeExtension}`);
-  },
-});
 
 const upload = multer({
-  storage,
+  storage: multer.memoryStorage(),
   limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (_, file, cb) => {
     if (!file.mimetype || !file.mimetype.startsWith('image/')) {
@@ -48,7 +35,8 @@ router.post('/', upload.single('photo'), async (req, res, next) => {
     const { reporter_name, description, latitude, longitude, address, photo_url } = req.body;
     const parsedLatitude = Number(latitude);
     const parsedLongitude = Number(longitude);
-    const uploadedPhotoUrl = req.file ? `/uploads/${req.file.filename}` : photo_url;
+    const uploadedPhoto = await saveReportPhoto(req.file);
+    const uploadedPhotoUrl = uploadedPhoto.photoUrl || photo_url;
 
     if (!reporter_name || !description || !Number.isFinite(parsedLatitude) || !Number.isFinite(parsedLongitude)) {
       return res.status(400).json({
