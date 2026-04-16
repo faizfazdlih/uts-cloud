@@ -432,7 +432,7 @@ export default function App() {
         marginBottom: 24,
       }}>
         <div>
-          <p style={{ margin: 0, fontSize: 15, fontWeight: 600, color: 'hsl(240 10% 3.9%)' }}>Gootrash</p>
+          <p style={{ margin: 0, fontSize: 15, fontWeight: 600, color: 'hsl(240 10% 3.9%)' }}>GO GO TRASH</p>
           <p style={{ margin: '2px 0 0', fontSize: 11, color: 'hsl(240 3.8% 46.1%)', letterSpacing: '0.03em' }}>
             Sistem Manajemen Persampahan
           </p>

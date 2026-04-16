@@ -63,3 +63,16 @@ Frontend default berjalan di: `http://localhost:5173`
 - `POST /api/officers`
 - `POST /api/officers/:id/logs`
 - `GET /api/monitoring`
+
+## CI/CD Frontend Saja (GitHub Actions)
+
+Workflow sudah dibuat di [.github/workflows/frontend-cicd.yml](.github/workflows/frontend-cicd.yml) dengan perilaku:
+
+- CI: build frontend saat `push`/`pull_request` untuk perubahan di folder `frontend/`
+- CD: deploy frontend ke GitHub Pages saat `push` ke branch `main` atau `master`
+
+Langkah aktivasi:
+
+1. Buka GitHub repo → **Settings** → **Pages** → Source: **GitHub Actions**
+2. Tambahkan secret repo `VITE_API_URL` (isi URL backend production), contoh:
+	- `https://api-domain-anda.com/api`
